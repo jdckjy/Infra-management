@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ShieldCheck, TrendingUp, AlertTriangle, ChevronRight } from 'lucide-react';
 import KPIManager from './KPIManager';
+import HotSpotMap from './HotSpotMap';
 import { KPI, StateUpdater } from '../types';
 
 interface SafetyManagementProps {
@@ -11,8 +12,10 @@ interface SafetyManagementProps {
 }
 
 const SafetyManagement: React.FC<SafetyManagementProps> = ({ kpis, onUpdate, mainValue }) => {
+  const [activeSubTab, setActiveSubTab] = useState<'kpi' | 'monitoring'>('monitoring');
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 h-full overflow-y-auto pr-4">
       <div className="bg-white rounded-5xl p-10 shadow-sm border border-gray-50 flex flex-col md:flex-row justify-between items-center gap-10">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
@@ -43,40 +46,53 @@ const SafetyManagement: React.FC<SafetyManagementProps> = ({ kpis, onUpdate, mai
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-8">
-        <div className="col-span-12 lg:col-span-8">
-          <KPIManager sectionTitle="Safety Index" kpis={kpis} onUpdate={onUpdate} accentColor="orange" />
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex bg-white p-1.5 rounded-full shadow-sm border border-gray-100">
+          <button onClick={() => setActiveSubTab('kpi')} className={`px-8 py-2.5 rounded-full text-xs font-bold transition-all ${activeSubTab === 'kpi' ? 'bg-black text-white shadow-md' : 'text-gray-400 hover:text-black'}`}>KPI Reports</button>
+          <button onClick={() => setActiveSubTab('monitoring')} className={`px-8 py-2.5 rounded-full text-xs font-bold transition-all ${activeSubTab === 'monitoring' ? 'bg-black text-white shadow-md' : 'text-gray-400 hover:text-black'}`}>Monitoring</button>
         </div>
-        
-        <div className="col-span-12 lg:col-span-4 space-y-6">
-          <div className="bg-white p-8 rounded-5xl shadow-sm border border-gray-50 h-full">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="font-bold text-lg">Real-time Alerts</h3>
-              <div className="w-2 h-2 bg-pink-500 rounded-full animate-ping"></div>
-            </div>
-            <div className="space-y-6">
-              {[
-                { title: 'Zone C: Safety perimeter breach', time: '10m ago', type: 'Critical', color: 'text-pink-500', bg: 'bg-pink-50' },
-                { title: 'Heavy rain alert: Inspect drainage', time: '1h ago', type: 'Warning', color: 'text-blue-500', bg: 'bg-blue-50' },
-                { title: 'Equipment check: Crane #04', time: '3h ago', type: 'Normal', color: 'text-gray-400', bg: 'bg-gray-50' },
-              ].map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between group cursor-pointer">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-xl ${item.bg} flex items-center justify-center ${item.color}`}>
-                      <AlertTriangle size={16} />
+      </div>
+
+      {activeSubTab === 'kpi' ? (
+        <div className="grid grid-cols-12 gap-8">
+          <div className="col-span-12 lg:col-span-8">
+            <KPIManager sectionTitle="Safety Index" kpis={kpis} onUpdate={onUpdate} accentColor="orange" />
+          </div>
+          
+          <div className="col-span-12 lg:col-span-4 space-y-6">
+            <div className="bg-white p-8 rounded-5xl shadow-sm border border-gray-50 h-full">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="font-bold text-lg">Real-time Alerts</h3>
+                <div className="w-2 h-2 bg-pink-500 rounded-full animate-ping"></div>
+              </div>
+              <div className="space-y-6">
+                {[
+                  { title: 'Zone C: Safety perimeter breach', time: '10m ago', type: 'Critical', color: 'text-pink-500', bg: 'bg-pink-50' },
+                  { title: 'Heavy rain alert: Inspect drainage', time: '1h ago', type: 'Warning', color: 'text-blue-500', bg: 'bg-blue-50' },
+                  { title: 'Equipment check: Crane #04', time: '3h ago', type: 'Normal', color: 'text-gray-400', bg: 'bg-gray-50' },
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between group cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-xl ${item.bg} flex items-center justify-center ${item.color}`}>
+                        <AlertTriangle size={16} />
+                      </div>
+                      <div>
+                        <span className="text-xs font-bold text-gray-500 group-hover:text-black transition-colors block leading-tight">{item.title}</span>
+                        <span className="text-[10px] font-bold text-gray-300 uppercase">{item.time}</span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-xs font-bold text-gray-500 group-hover:text-black transition-colors block leading-tight">{item.title}</span>
-                      <span className="text-[10px] font-bold text-gray-300 uppercase">{item.time}</span>
-                    </div>
+                    <ChevronRight size={14} className="text-gray-200 group-hover:text-black transition-all" />
                   </div>
-                  <ChevronRight size={14} className="text-gray-200 group-hover:text-black transition-all" />
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div style={{ height: 'calc(100vh - 300px)' }}>
+          <HotSpotMap />
+        </div>
+      )}
     </div>
   );
 };

@@ -9,6 +9,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
+        // 동적으로 생성되는 클래스 이름을 safelist에 추가하여 Tailwind CSS가 인식하도록 합니다.
+        safelist: [
+            'bg-indigo-500', 'text-indigo-500',
+            'bg-amber-500', 'text-amber-500',
+            'bg-red-500', 'text-red-500',
+            'bg-red-400', // 펄스 애니메이션용
+        ],
         theme: {
           extend: {
             fontFamily: {

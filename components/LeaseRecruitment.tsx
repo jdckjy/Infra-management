@@ -13,7 +13,7 @@ interface LeaseRecruitmentProps {
 }
 
 const LeaseRecruitment: React.FC<LeaseRecruitmentProps> = ({ kpis, onUpdate, tenants, onTenantsUpdate, mainValue }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'management' | 'occupancy'>('occupancy');
+  const [activeSubTab, setActiveSubTab] = useState<'management' | 'occupancy'>('management');
   const [selectedFloor, setSelectedFloor] = useState<number>(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
@@ -125,8 +125,8 @@ const LeaseRecruitment: React.FC<LeaseRecruitmentProps> = ({ kpis, onUpdate, ten
 
       <div className="flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex bg-white p-1.5 rounded-full shadow-sm border border-gray-100">
-          <button onClick={() => setActiveSubTab('occupancy')} className={`px-8 py-2.5 rounded-full text-xs font-bold transition-all ${activeSubTab === 'occupancy' ? 'bg-black text-white shadow-md' : 'text-gray-400 hover:text-black'}`}>Units Detail</button>
           <button onClick={() => setActiveSubTab('management')} className={`px-8 py-2.5 rounded-full text-xs font-bold transition-all ${activeSubTab === 'management' ? 'bg-black text-white shadow-md' : 'text-gray-400 hover:text-black'}`}>KPI Reports</button>
+          <button onClick={() => setActiveSubTab('occupancy')} className={`px-8 py-2.5 rounded-full text-xs font-bold transition-all ${activeSubTab === 'occupancy' ? 'bg-black text-white shadow-md' : 'text-gray-400 hover:text-black'}`}>Units Detail</button>
         </div>
 
         {activeSubTab === 'occupancy' && (
