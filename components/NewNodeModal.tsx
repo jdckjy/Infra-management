@@ -1,19 +1,16 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { X, Search } from 'lucide-react';
-import { Facility, HotSpot } from '../types'; // HotSpot 타입을 가져옵니다.
+import { Facility, HotSpot } from '../types';
 
-// HotSpot 데이터 타입에서 id를 제외한 타입을 생성합니다.
 type NewHotSpotData = Omit<HotSpot, 'id'>;
 
 interface NewNodeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  // onRegister는 이제 새로운 데이터 또는 수정된 데이터를 받습니다.
   onRegister: (data: NewHotSpotData | HotSpot) => void;
   location: { lat: number; lng: number } | null;
   facilities: Facility[];
-  // 수정할 기존 HotSpot 데이터를 받을 수 있도록 추가합니다.
   editingHotspot: HotSpot | null;
 }
 
@@ -33,7 +30,6 @@ const NewNodeModal: React.FC<NewNodeModalProps> = ({
 
   const isEditing = !!editingHotspot;
 
-  // 수정 모드일 때 기존 데이터로 폼을 채웁니다.
   useEffect(() => {
     if (isEditing) {
       const facility = facilities.find(f => f.id === editingHotspot.facilityId) || null;
@@ -42,7 +38,6 @@ const NewNodeModal: React.FC<NewNodeModalProps> = ({
       setRiskLevel(editingHotspot.riskLevel);
       setDetails(editingHotspot.details);
     } else {
-      // 생성 모드일 때 폼을 초기화합니다.
       setSelectedFacility(null);
       setResponseType('정기');
       setRiskLevel('Level 1 (낮음)');
@@ -94,14 +89,12 @@ const NewNodeModal: React.FC<NewNodeModalProps> = ({
         <div className="p-8">
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-4">
-               {/* ... (기존 헤더 UI) ... */}
                <h2 className="text-xl font-bold text-gray-900">{isEditing ? '노드 정보 수정' : '신규 노드 생성'}</h2>
             </div>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
               <X size={24} />
             </button>
           </div>
-          {/* ... (탭 부분은 숨김 처리) ... */}
         </div>
 
         <div className="p-8 grid grid-cols-2 gap-8">
@@ -110,7 +103,7 @@ const NewNodeModal: React.FC<NewNodeModalProps> = ({
             <label className="text-xs font-bold text-gray-500">시설물 검색</label>
             <div className="relative mt-2">
               <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input type="text" placeholder="시설 명칭 입력..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-gray-50 rounded-lg pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input type="text" placeholder="시설 명칭 입력..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-gray-50 rounded-lg pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900" />
             </div>
             <div className="mt-4 border border-gray-200 rounded-lg h-60 overflow-y-auto">
               {filteredFacilities.map(facility => (
@@ -128,13 +121,13 @@ const NewNodeModal: React.FC<NewNodeModalProps> = ({
               <div>
                 <label className="text-xs font-bold text-gray-500">대응 타입</label>
                 <div className="flex mt-2 bg-gray-100 rounded-lg p-1">
-                  <button onClick={() => setResponseType('정기')} className={`w-full text-center text-sm py-1.5 rounded ${responseType === '정기' ? 'bg-white shadow' : ''}`}>정기</button>
-                  <button onClick={() => setResponseType('긴급')} className={`w-full text-center text-sm py-1.5 rounded ${responseType === '긴급' ? 'bg-white shadow' : ''}`}>긴급</button>
+                  <button onClick={() => setResponseType('정기')} className={`w-full text-center text-sm py-1.5 rounded transition-all ${responseType === '정기' ? 'bg-white shadow font-bold text-gray-900' : 'text-gray-600'}`}>정기</button>
+                  <button onClick={() => setResponseType('긴급')} className={`w-full text-center text-sm py-1.5 rounded transition-all ${responseType === '긴급' ? 'bg-white shadow font-bold text-gray-900' : 'text-gray-600'}`}>긴급</button>
                 </div>
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500">위험도</label>
-                <select value={riskLevel} onChange={(e) => setRiskLevel(e.target.value as any)} className="w-full mt-2 bg-gray-50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200">
+                <select value={riskLevel} onChange={(e) => setRiskLevel(e.target.value as any)} className="w-full mt-2 bg-gray-50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200 text-gray-900">
                   <option>Level 1 (낮음)</option>
                   <option>Level 2 (중간)</option>
                   <option>Level 3 (높음)</option>
@@ -143,7 +136,7 @@ const NewNodeModal: React.FC<NewNodeModalProps> = ({
             </div>
             <div>
               <label className="text-xs font-bold text-gray-500">상황 요약 및 보고</label>
-              <textarea value={details} onChange={(e) => setDetails(e.target.value)} rows={5} placeholder="현장 보고 사항 및 상세 내용을 입력하세요..." className="w-full mt-2 bg-gray-50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200" />
+              <textarea value={details} onChange={(e) => setDetails(e.target.value)} rows={5} placeholder="현장 보고 사항 및 상세 내용을 입력하세요..." className="w-full mt-2 bg-gray-50 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200 text-gray-900" />
             </div>
           </div>
         </div>

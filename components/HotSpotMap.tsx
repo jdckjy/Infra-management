@@ -66,26 +66,29 @@ const MapController: React.FC<any> = ({ onMapClick, onMouseMove, onZoomEnd }) =>
 const HotSpotMap: React.FC<HotSpotMapProps> = ({ facilities, hotspots, onAddHotspot, onUpdateHotspot, onDeleteHotspot }) => {
   const [viewMode, setViewMode] = useState<'satellite' | 'blueprint'>('satellite');
   const [mouseCoords, setMouseCoords] = useState<{ lat: number, lng: number } | null>(null);
-  const [zoomLevel, setZoomLevel] = useState(15.5);
+  const [zoomLevel, setZoomLevel] = useState(16);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newNodeCoords, setNewNodeCoords] = useState<LatLng | null>(null);
   const [editingHotspot, setEditingHotspot] = useState<HotSpot | null>(null);
   
   const mapRef = useRef<LeafletMap>(null);
-  const initialPosition: LatLngExpression = [33.450701, 126.570667]; // 제주대학교
+  
+  const initialPosition: LatLngExpression = [33.285186, 126.560624]; 
 
   const handleMapClick = (latlng: LatLng) => {
-    setEditingHotspot(null); // 수정 모드 해제
+    setEditingHotspot(null);
     setNewNodeCoords(latlng);
     setIsModalOpen(true);
   };
 
-  const handleEditClick = (hotspot: HotSpot) => {
+  const handleEditClick = (e: React.MouseEvent, hotspot: HotSpot) => {
+    e.stopPropagation(); // 이벤트 버블링 방지
     setEditingHotspot(hotspot);
     setIsModalOpen(true);
   };
 
-  const handleDeleteClick = (hotspotId: string) => {
+  const handleDeleteClick = (e: React.MouseEvent, hotspotId: string) => {
+    e.stopPropagation(); // 이벤트 버블링 방지
     if (window.confirm('정말로 이 노드를 삭제하시겠습니까?')) {
       onDeleteHotspot(hotspotId);
     }
@@ -127,8 +130,8 @@ const HotSpotMap: React.FC<HotSpotMapProps> = ({ facilities, hotspots, onAddHots
                     </p>
                  </div>
                  <div className="flex justify-end gap-2 bg-slate-700/50 p-2 rounded-b-md">
-                    <button onClick={() => handleEditClick(spot)} className="flex items-center gap-1 text-xs px-2 py-1 bg-gray-600 hover:bg-gray-500 rounded"><Edit size={12}/>수정</button>
-                    <button onClick={() => handleDeleteClick(spot.id)} className="flex items-center gap-1 text-xs px-2 py-1 bg-red-800 hover:bg-red-700 rounded"><Trash2 size={12}/>삭제</button>
+                    <button onClick={(e) => handleEditClick(e, spot)} className="flex items-center gap-1 text-xs px-2 py-1 bg-gray-600 hover:bg-gray-500 rounded"><Edit size={12}/>수정</button>
+                    <button onClick={(e) => handleDeleteClick(e, spot.id)} className="flex items-center gap-1 text-xs px-2 py-1 bg-red-800 hover:bg-red-700 rounded"><Trash2 size={12}/>삭제</button>
                  </div>
               </div>
             </Popup>
