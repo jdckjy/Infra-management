@@ -88,7 +88,6 @@ export interface Facility {
   notes?: string;
 }
 
-// 지도에 표시될 새로운 노드(마커)를 위한 타입 정의 (id를 string으로 변경)
 export interface HotSpot {
   id: string;
   position: LatLngExpression;
@@ -97,6 +96,13 @@ export interface HotSpot {
   responseType: '정기' | '긴급';
   riskLevel: 'Level 1 (낮음)' | 'Level 2 (중간)' | 'Level 3 (높음)';
   details: string;
+}
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  avatarUrl: string;
 }
 
 export type StateUpdater<T> = React.Dispatch<React.SetStateAction<T>>;
