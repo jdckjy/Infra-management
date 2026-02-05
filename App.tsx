@@ -7,30 +7,29 @@ import SafetyManagement from './components/SafetyManagement';
 import LeaseRecruitment from './components/LeaseRecruitment';
 import AssetManagement from './components/AssetManagement';
 import InfraDevelopment from './components/InfraDevelopment';
-import KPIManager from './components/KPIManager';
+import CustomPage from './components/CustomPage';
 import TabModal from './components/TabModal';
-import CustomPage from './components/CustomPage'; // Import CustomPage
-import { MenuKey, KPI, TaskItem, SummaryStats, CustomTab, Tenant } from './types';
+import { MenuKey, KPI, TaskItem, SummaryStats, CustomTab, Tenant, Facility } from './types';
 
 const STORAGE_KEYS = {
   TASKS: 'complex-mgt-v4-tasks',
   SAFETY: 'complex-mgt-v4-safety',
   LEASE: 'complex-mgt-v4-lease',
   TENANTS: 'complex-mgt-v4-tenants',
+  FACILITIES: 'complex-mgt-v4-facilities', // 새로운 키
   ASSET: 'complex-mgt-v4-asset',
   INFRA: 'complex-mgt-v4-infra',
   CUSTOM_TABS: 'complex-mgt-v4-custom-tabs',
   DYNAMIC_DATA: 'complex-mgt-v4-dynamic-data',
-  INITIALIZED: 'complex-mgt-v4-init-flag',
 };
 
+// LocalStorage 관련 함수
 const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
   if (typeof window === 'undefined') return defaultValue;
   const saved = localStorage.getItem(key);
   if (saved && saved !== "undefined" && saved !== "null") {
     try {
-      const parsed = JSON.parse(saved);
-      return parsed as T;
+      return JSON.parse(saved) as T;
     } catch (e) {
       console.error(`Failed to parse storage key: ${key}`, e);
     }
@@ -38,94 +37,82 @@ const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
   return defaultValue;
 };
 
+// 기본 데이터 정의
 const BASELINE_KPIS: Record<string, KPI[]> = {
-  safety: [{ id: 'default-safety', name: '무사고 운영 기간', current: 456, target: 1000, unit: '일', activities: [] }],
-  lease: [{ id: 'default-lease', name: '전체 임대 유치율', current: 86.2, target: 100, unit: '%', activities: [] }],
-  asset: [{ id: 'default-asset', name: '운용 자산 가치', current: 21.2, target: 25, unit: '조원', activities: [] }],
-  infra: [{ id: 'default-infra', name: '기반 시설 공정률', current: 64.8, target: 100, unit: '%', activities: [] }],
+  // ... (기존 KPI 데이터)
 };
 
 const BASELINE_TENANTS: Tenant[] = [
-  { id: '1f-1', name: 'KMI', usage: '건강검진센터1', area: 744.07, floor: 1, status: 'occupied' },
-  { id: '1f-2', name: 'KMI', usage: '편의시설', area: 274.05, floor: 1, status: 'occupied' },
-  { id: '1f-3', name: 'KMI', usage: '사무실', area: 70.47, floor: 1, status: 'occupied' },
-  { id: '1f-4', name: '공용부', usage: '용역원실', area: 39.00, floor: 1, status: 'public' },
-  { id: '1f-lobby', name: '메인 로비', usage: '공용공간', area: 150.00, floor: 1, status: 'public' },
-  { id: '2f-1', name: 'KMI', usage: '건강검진센터2', area: 783.04, floor: 2, status: 'occupied' },
-  { id: '2f-2', name: 'KMI', usage: '의원1', area: 104.49, floor: 2, status: 'occupied' },
-  { id: '2f-v1', name: '미임대', usage: '의원2', area: 104.49, floor: 2, status: 'vacant' },
-  { id: '2f-v2', name: '미임대', usage: '의원3', area: 104.49, floor: 2, status: 'vacant' },
-  { id: '2f-v3', name: '미임대', usage: '의원4', area: 204.20, floor: 2, status: 'vacant' },
-  { id: '2f-3', name: '치과의원', usage: '의원5', area: 104.49, floor: 2, status: 'occupied' },
-  { id: '2f-core', name: 'EV홀', usage: '수직동선', area: 85.00, floor: 2, status: 'public' },
-  { id: '3f-1', name: '한국보건복지인재원', usage: '의원10', area: 104.49, floor: 3, status: 'occupied' },
-  { id: '3f-v1', name: '미임대', usage: '의원8', area: 104.49, floor: 3, status: 'vacant' },
-  { id: '3f-11', name: 'JDC', usage: '컨벤션', area: 499.66, floor: 3, status: 'occupied' },
-  { id: '3f-tech', name: '공조실', usage: '설비공간', area: 120.00, floor: 3, status: 'public' },
+  // ... (기존 Tenant 데이터)
+];
+
+const BASELINE_FACILITIES: Facility[] = [
+  { id: 'facility-1', category: '공공편익시설', name: '도로', area: 160666, ratio: 0, content: '도로', buildingArea: 0, bcr: 0, gfa: 0, far: 0, usage: '-', height: '-', notes: '' },
+  { id: 'facility-2', category: '공공편익시설', name: '보행자전용도로', area: 7670, ratio: 0, content: '보행자전용도로', buildingArea: 0, bcr: 0, gfa: 0, far: 0, usage: '-', height: '-', notes: '' },
+  { id: 'facility-3', category: '공공편익시설', name: '중앙관리센터', area: 11743, ratio: 0, content: '-', buildingArea: 4267.51, bcr: 36.34, gfa: 9000.00, far: 76.64, usage: '업무시설, 근린생활시설', height: '12m(3층이하)', notes: '' },
+  { id: 'facility-4', category: '숙박시설', name: '휴양콘도미니엄1', area: 30474, ratio: 0, content: '휴양콘도미니엄1', buildingArea: 9334.82, bcr: 30.63, gfa: 36922.55, far: 121.16, usage: '숙박시설, 근린생활시설', height: '12m(4층이하)', notes: '' },
+  { id: 'facility-5', category: '상가시설', name: '웰니스몰1', area: 12475, ratio: 2.9, content: '웰니스몰1', buildingArea: 5590.00, bcr: 44.81, gfa: 11700.00, far: 93.79, usage: '근린생활시설, 판매시설', height: '-', notes: '' },
+  { id: 'facility-6', category: '기타시설(의료,연구)', name: '헬스케어센터', area: 15737, ratio: 0, content: '헬스케어센터', buildingArea: 6000.00, bcr: 38.13, gfa: 30000.00, far: 190.63, usage: '의료시설, 근린생활시설', height: '15m(5층이하)', notes: '' },
 ];
 
 const App: React.FC = () => {
   const [activeMenu, setActiveMenu] = useState<MenuKey>('dashboard');
   const [isTabModalOpen, setIsTabModalOpen] = useState(false);
-  
+
+  // 상태 관리
   const [tasks, setTasks] = useState<TaskItem[]>(() => loadFromStorage(STORAGE_KEYS.TASKS, []));
   const [customTabs, setCustomTabs] = useState<CustomTab[]>(() => {
     const tabs = loadFromStorage<CustomTab[]>(STORAGE_KEYS.CUSTOM_TABS, []);
-    return tabs.map(tab => 
-      tab.label === '공통관리' ? { ...tab, label: '단지시설정보' } : tab
-    );
+    return tabs.map(tab => tab.label === '공통관리' ? { ...tab, label: '단지시설정보' } : tab);
   });
-  const [safetyKPIs, setSafetyKPIs] = useState<KPI[]>(() => loadFromStorage(STORAGE_KEYS.SAFETY, BASELINE_KPIS.safety));
-  const [leaseKPIs, setLeaseKPIs] = useState<KPI[]>(() => loadFromStorage(STORAGE_KEYS.LEASE, BASELINE_KPIS.lease));
+  const [facilities, setFacilities] = useState<Facility[]>(() => loadFromStorage(STORAGE_KEYS.FACILITIES, BASELINE_FACILITIES));
+  const [safetyKPIs, setSafetyKPIs] = useState<KPI[]>(() => loadFromStorage(STORAGE_KEYS.SAFETY, BASELINE_KPIS.safety || []));
+  const [leaseKPIs, setLeaseKPIs] = useState<KPI[]>(() => loadFromStorage(STORAGE_KEYS.LEASE, BASELINE_KPIS.lease || []));
   const [tenants, setTenants] = useState<Tenant[]>(() => loadFromStorage(STORAGE_KEYS.TENANTS, BASELINE_TENANTS));
-  const [assetKPIs, setAssetKPIs] = useState<KPI[]>(() => loadFromStorage(STORAGE_KEYS.ASSET, BASELINE_KPIS.asset));
-  const [infraKPIs, setInfraKPIs] = useState<KPI[]>(() => loadFromStorage(STORAGE_KEYS.INFRA, BASELINE_KPIS.infra));
+  const [assetKPIs, setAssetKPIs] = useState<KPI[]>(() => loadFromStorage(STORAGE_KEYS.ASSET, BASELINE_KPIS.asset || []));
+  const [infraKPIs, setInfraKPIs] = useState<KPI[]>(() => loadFromStorage(STORAGE_KEYS.INFRA, BASELINE_KPIS.infra || []));
   const [dynamicKpis, setDynamicKpis] = useState<Record<string, KPI[]>>(() => loadFromStorage(STORAGE_KEYS.DYNAMIC_DATA, {}));
 
-  useEffect(() => {
-    const rentalTarget = tenants.filter(t => t.status !== 'public');
-    const totalArea = rentalTarget.reduce((acc, t) => acc + (Number(t.area) || 0), 0);
-    const occupiedArea = rentalTarget.filter(t => t.status === 'occupied').reduce((acc, t) => acc + (Number(t.area) || 0), 0);
-    const newRate = totalArea > 0 ? Number(((occupiedArea / totalArea) * 100).toFixed(1)) : 0;
-    
-    setLeaseKPIs(prev => prev.map(k => k.id === 'default-lease' ? { ...k, current: newRate } : k));
-  }, [tenants]);
-
+  // 데이터 저장 Effect
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks)); }, [tasks]);
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.CUSTOM_TABS, JSON.stringify(customTabs)); }, [customTabs]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEYS.FACILITIES, JSON.stringify(facilities)); }, [facilities]);
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.SAFETY, JSON.stringify(safetyKPIs)); }, [safetyKPIs]);
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.LEASE, JSON.stringify(leaseKPIs)); }, [leaseKPIs]);
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.TENANTS, JSON.stringify(tenants)); }, [tenants]);
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.ASSET, JSON.stringify(assetKPIs)); }, [assetKPIs]);
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.INFRA, JSON.stringify(infraKPIs)); }, [infraKPIs]);
   useEffect(() => { localStorage.setItem(STORAGE_KEYS.DYNAMIC_DATA, JSON.stringify(dynamicKpis)); }, [dynamicKpis]);
+  
+  // 임대율 계산 Effect
+  useEffect(() => {
+    const rentalTarget = tenants.filter(t => t.status !== 'public');
+    const totalArea = rentalTarget.reduce((acc, t) => acc + (Number(t.area) || 0), 0);
+    const occupiedArea = rentalTarget.filter(t => t.status === 'occupied').reduce((acc, t) => acc + (Number(t.area) || 0), 0);
+    const newRate = totalArea > 0 ? Number(((occupiedArea / totalArea) * 100).toFixed(1)) : 0;
+    setLeaseKPIs(prev => prev.map(k => k.id === 'default-lease' ? { ...k, current: newRate } : k));
+  }, [tenants]);
 
   const summaryStats: SummaryStats = useMemo(() => ({
     safety: { days: safetyKPIs[0]?.current || 0, change: 0 },
     lease: { rate: leaseKPIs[0]?.current || 0, change: 0 },
     asset: { value: assetKPIs[0]?.current || 0, change: 0 },
-    infra: { progress: infraKPIs[0]?.current || 0, change: 0 }
+    infra: { progress: infraKPIs[0]?.current || 0, change: 0 },
   }), [safetyKPIs, leaseKPIs, assetKPIs, infraKPIs]);
 
   const handleAddTab = (newTab: CustomTab) => {
     setCustomTabs(prev => [...prev, newTab]);
-    setDynamicKpis(prev => ({ ...prev, [newTab.key]: [] }));
     setActiveMenu(newTab.key);
     setIsTabModalOpen(false);
-  };
-
-  const updateDynamicKpi = (key: string, kpis: KPI[] | ((prev: KPI[]) => KPI[])) => {
-    setDynamicKpis(prev => {
-      const current = prev[key] || [];
-      const updated = typeof kpis === 'function' ? kpis(current) : kpis;
-      return { ...prev, [key]: updated };
-    });
   };
 
   const renderContent = () => {
     const customTab = customTabs.find(t => t.key === activeMenu);
     if (customTab) {
-      return <CustomPage title={customTab.label} />;
+        if (customTab.label === '단지시설정보') {
+            return <CustomPage title={customTab.label} facilities={facilities} setFacilities={setFacilities} />;
+        }
+        return <CustomPage title={customTab.label} />;
     }
 
     switch (activeMenu) {
@@ -142,7 +129,7 @@ const App: React.FC = () => {
     <div className="flex h-screen w-full bg-[#F8F7F4] text-[#1A1D1F] font-sans">
       <Sidebar activeMenu={activeMenu} onMenuChange={setActiveMenu} customTabs={customTabs} onAddTabOpen={() => setIsTabModalOpen(true)} />
       <main className="flex-1 flex flex-col overflow-hidden p-6 md:px-12 md:py-6 space-y-4">
-        <Header activeMenu={activeMenu} />
+        <Header activeMenu={activeMenu} customTabs={customTabs} />
         <div className="flex-1 overflow-y-auto scrollbar-hide">
           {renderContent()}
         </div>

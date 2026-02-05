@@ -71,4 +71,21 @@ export interface Tenant {
   status: 'occupied' | 'vacant' | 'public'; // 임대/미임대/비임대 상태
 }
 
+export interface Facility {
+  id: string;
+  category: string;
+  name: string;
+  area?: number;
+  ratio?: number;
+  content?: string;
+  buildingArea?: number;
+  bcr?: number; // 건폐율
+  gfa?: number; // 지상총면적
+  far?: number; // 용적률
+  usage?: string;
+  height?: string;
+  notes?: string;
+}
+
+
 export type StateUpdater<T> = React.Dispatch<React.SetStateAction<T>>;
