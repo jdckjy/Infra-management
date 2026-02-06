@@ -75,6 +75,18 @@ const HotSpotMap: React.FC<HotSpotMapProps> = ({ facilities, hotspots, onAddHots
   
   const initialPosition: LatLngExpression = [33.285186, 126.560624]; 
 
+  useEffect(() => {
+    // 탭이 활성화되어 컴포넌트가 마운트될 때 지도가 깨지는 현상을 방지합니다.
+    // 잠시 후 지도 크기를 다시 계산하여 올바르게 표시되도록 합니다.
+    const timer = setTimeout(() => {
+      if (mapRef.current) {
+        mapRef.current.invalidateSize();
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []); // 컴포넌트가 마운트될 때 한 번만 실행됩니다.
+
   const handleMapClick = (latlng: LatLng) => {
     setEditingHotspot(null);
     setNewNodeCoords(latlng);
