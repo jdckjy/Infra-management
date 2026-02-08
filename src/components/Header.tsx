@@ -1,11 +1,11 @@
 
 import React, { useMemo } from 'react';
 import { Search, Bell, ChevronDown, Calendar, Menu } from 'lucide-react';
-import { useData } from '../contexts/DataContext'; // Import useData hook
+import { useUnifiedData } from '../contexts/UnifiedDataContext'; // Import useUnifiedData hook
 
 const Header: React.FC = () => {
   // All props are now gone, we get everything from the context
-  const { customTabs, selectedMonth, setSelectedMonth } = useData();
+  const { customTabs, selectedMonth, setSelectedMonth } = useUnifiedData();
   
   // This state can be local to the Header or derived from a global state if needed
   const [activeMenu, setActiveMenu] = React.useState('dashboard');

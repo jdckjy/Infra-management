@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Plus, Edit2, Trash2, ChevronDown, Settings2 } from 'lucide-react';
 import { KPI, BusinessActivity } from '../types';
 import ActivityDetailModal from './ActivityDetailModal';
-import { useData } from '../contexts/DataContext'; // Import useData hook
+import { useUnifiedData } from '../contexts/UnifiedDataContext'; // Import useUnifiedData hook
 
 interface KPIManagerProps {
   sectionTitle: string;
@@ -13,7 +13,7 @@ interface KPIManagerProps {
 }
 
 const KPIManager: React.FC<KPIManagerProps> = ({ sectionTitle, kpis, onUpdate, accentColor }) => {
-  const { selectedMonth, updateKpiActivity } = useData(); // Get data from context
+  const { selectedMonth, updateKpiActivity } = useUnifiedData(); // Get data from context
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);

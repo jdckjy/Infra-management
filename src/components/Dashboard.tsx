@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Building2, ArrowUpRight, TrendingUp } from 'lucide-react';
-import { useData } from '../contexts/DataContext'; // Import useData hook
+import { useUnifiedData } from '../contexts/UnifiedDataContext'; // Import useUnifiedData hook
 
 // ProjectStatCard remains the same as it is a presentational component.
 const ProjectStatCard: React.FC<{
@@ -34,7 +34,7 @@ const ProjectStatCard: React.FC<{
 
 const Dashboard: React.FC = () => {
   // All data is now coming directly from our global context
-  const { selectedMonth, totalMonthlyPlans } = useData();
+  const { selectedMonth, totalMonthlyPlans } = useUnifiedData();
   
   const selectedMonthName = new Date(0, selectedMonth).toLocaleString('ko-KR', { month: 'long' });
 

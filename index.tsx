@@ -1,8 +1,8 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
-import { DataProvider } from './contexts/DataContext';
+import App from './src/App';
+import { UnifiedDataProvider } from './src/contexts/UnifiedDataContext';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -12,8 +12,8 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <DataProvider>
+    <UnifiedDataProvider>
       <App />
-    </DataProvider>
+    </UnifiedDataProvider>
   </React.StrictMode>
 );

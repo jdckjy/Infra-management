@@ -1,10 +1,10 @@
 
 import React from 'react';
 import KPIManager from './KPIManager';
-import { useData } from '../contexts/DataContext'; // Import useData hook
+import { useUnifiedData } from '../contexts/UnifiedDataContext'; // Import useUnifiedData hook
 
 const AssetManagement: React.FC = () => {
-  const { assetKPIs, setAssetKPIs } = useData();
+  const { assetKPIs, setAssetKPIs } = useUnifiedData();
 
   const mainValue = {
     value: assetKPIs[0]?.current || 0,
