@@ -1,36 +1,39 @@
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { KPI, BusinessActivity, CustomTab, HotSpot, Facility } from '../types';
-import { createKpi } from '../data/factories';
-
-// All initial data is removed to prevent inconsistencies.
-// The state will be initialized with empty arrays and populated from a single source.
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { KPI, BusinessActivity, CustomTab, HotSpot, Facility, NavigationState } from '../types';
 
 interface UnifiedData {
+  // Data states
   safetyKPIs: KPI[];
-  setSafetyKPIs: React.Dispatch<React.SetStateAction<KPI[]>>;
   leaseKPIs: KPI[];
-  setLeaseKPIs: React.Dispatch<React.SetStateAction<KPI[]>>;
   assetKPIs: KPI[];
-  setAssetKPIs: React.Dispatch<React.SetStateAction<KPI[]>>;
   infraKPIs: KPI[];
-  setInfraKPIs: React.Dispatch<React.SetStateAction<KPI[]>>;
   hotspots: HotSpot[];
-  setHotspots: React.Dispatch<React.SetStateAction<HotSpot[]>>;
   facilities: Facility[];
-  setFacilities: React.Dispatch<React.SetStateAction<Facility[]>>;
   customTabs: CustomTab[];
-  setCustomTabs: React.Dispatch<React.SetStateAction<CustomTab[]>>;
+  
+  // UI/Navigation states
   selectedMonth: number;
-  setSelectedMonth: React.Dispatch<React.SetStateAction<number>>;
   totalMonthlyPlans: number;
+  navigationState: NavigationState;
+
+  // Setters and Actions
+  setSafetyKPIs: React.Dispatch<React.SetStateAction<KPI[]>>;
+  setLeaseKPIs: React.Dispatch<React.SetStateAction<KPI[]>>;
+  setAssetKPIs: React.Dispatch<React.SetStateAction<KPI[]>>;
+  setInfraKPIs: React.Dispatch<React.SetStateAction<KPI[]>>;
+  setHotspots: React.Dispatch<React.SetStateAction<HotSpot[]>>;
+  setFacilities: React.Dispatch<React.SetStateAction<Facility[]>>;
+  setSelectedMonth: React.Dispatch<React.SetStateAction<number>>;
   updateKpiActivity: (kpiId: string, updatedActivity: BusinessActivity) => void;
+  addTab: (newTab: Omit<CustomTab, 'key'>) => void;
+  navigateTo: (newState: Partial<NavigationState>) => void;
 }
 
 const UnifiedDataContext = createContext<UnifiedData | undefined>(undefined);
 
-export const UnifiedDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Initialize all data states with empty arrays.
+export const UnifiedDataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // Data states
   const [safetyKPIs, setSafetyKPIs] = useState<KPI[]>([]);
   const [leaseKPIs, setLeaseKPIs] = useState<KPI[]>([]);
   const [assetKPIs, setAssetKPIs] = useState<KPI[]>([]);
@@ -38,8 +41,23 @@ export const UnifiedDataProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [hotspots, setHotspots] = useState<HotSpot[]>([]);
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [customTabs, setCustomTabs] = useState<CustomTab[]>([]);
+
+  // UI/Navigation states
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
   const [totalMonthlyPlans, setTotalMonthlyPlans] = useState(0);
+  const [navigationState, setNavigationState] = useState<NavigationState>({ menuKey: 'dashboard' });
+
+  const navigateTo = useCallback((newState: Partial<NavigationState>) => {
+    setNavigationState(prevState => ({ ...prevState, ...newState }));
+  }, []);
+
+  const addTab = useCallback((newTab: Omit<CustomTab, 'key'>) => {
+    const key = `custom-${Date.now()}`;
+    const tabWithKey = { ...newTab, key };
+    setCustomTabs(prev => [...prev, tabWithKey]);
+    navigateTo({ menuKey: key });
+  }, [navigateTo]);
+
 
   const allKpiSetters: { [key: string]: React.Dispatch<React.SetStateAction<KPI[]>> } = {
     safety: setSafetyKPIs,
@@ -74,24 +92,19 @@ export const UnifiedDataProvider: React.FC<{ children: React.ReactNode }> = ({ c
   }, [selectedMonth, safetyKPIs, leaseKPIs, assetKPIs, infraKPIs]);
 
   const value = {
-    safetyKPIs,
-    setSafetyKPIs,
-    leaseKPIs,
-    setLeaseKPIs,
-    assetKPIs,
-    setAssetKPIs,
-    infraKPIs,
-    setInfraKPIs,
-    hotspots,
-    setHotspots,
-    facilities,
-    setFacilities,
-    customTabs,
-    setCustomTabs,
-    selectedMonth,
-    setSelectedMonth,
+    safetyKPIs, setSafetyKPIs,
+    leaseKPIs, setLeaseKPIs,
+    assetKPIs, setAssetKPIs,
+    infraKPIs, setInfraKPIs,
+    hotspots, setHotspots,
+    facilities, setFacilities,
+    customTabs, 
+    selectedMonth, setSelectedMonth,
     totalMonthlyPlans,
+    navigationState,
     updateKpiActivity,
+    addTab,
+    navigateTo,
   };
 
   return <UnifiedDataContext.Provider value={value}>{children}</UnifiedDataContext.Provider>;
